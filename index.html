@@ -6,9 +6,7 @@
 <title>Bảng ghi nhận tham gia</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -23,15 +21,8 @@ header {
     text-align: center;
     padding: 25px;
 }
-
-header h1 {
-    margin: 0;
-    font-size: 32px;
-}
-
-header p {
-    margin-bottom: 0;
-}
+header h1 { margin: 0; font-size: 32px; }
+header p { margin-bottom: 0; }
 
 .container {
     max-width: 1200px;
@@ -47,6 +38,20 @@ header p {
     margin-bottom: 25px;
 }
 
+/* Thanh trạng thái kết nối / thao tác */
+.status-bar {
+    min-height: 22px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: none;
+}
+.status-bar.is-visible { display: block; }
+.status-bar--error { background: #fde8ec; color: #a11d33; }
+.status-bar--success { background: #e6f7ee; color: #136c3a; }
+.status-bar--info { background: #eef2ff; color: #3730a3; }
+
 .form {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
@@ -54,11 +59,7 @@ header p {
     align-items: end;
 }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
+label { display: block; margin-bottom: 8px; font-weight: bold; }
 
 input {
     width: 100%;
@@ -76,26 +77,12 @@ button {
     font-weight: bold;
     font-size: 15px;
 }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.add {
-    background: #6d45dc;
-    color: white;
-}
+.add { background: #6d45dc; color: white; }
+.delete { background: #e84c69; color: white; margin-top: 15px; }
 
-.delete {
-    background: #e84c69;
-    color: white;
-    margin-top: 15px;
-}
-
-/* THỐNG KÊ */
-
-.stats {
-    display: flex;
-    gap: 20px;
-    margin-top: 25px;
-}
-
+.stats { display: flex; gap: 20px; margin-top: 25px; }
 .stat {
     flex: 1;
     padding: 20px;
@@ -103,15 +90,12 @@ button {
     border-radius: 12px;
     text-align: center;
 }
-
 .stat strong {
     display: block;
     font-size: 27px;
     color: #7044d6;
     margin-bottom: 5px;
 }
-
-/* MÀN HÌNH CHẠY CHỮ */
 
 .display {
     background: #211b42;
@@ -120,33 +104,11 @@ button {
     border-radius: 1px;
     overflow: hidden;
 }
+.display h2 { text-align: center; color: #ffdf57; margin: 0 0 10px 10px; }
 
-.display h2 {
-    text-align: center;
-    color: #ffdf57;
-    margin: 0 0 10px 10px;
-}
-
-.marquee {
-    width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.track {
-    display: flex;
-    width: max-content;
-    will-change: transform;
-}
-
-.group {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 20px;
-    padding-right: 10px;
-}
-
+.marquee { width: 100%; overflow: hidden; white-space: nowrap; }
+.track { display: flex; width: max-content; will-change: transform; }
+.group { display: flex; flex-shrink: 0; align-items: center; gap: 20px; padding-right: 10px; }
 .item {
     background: #40346f;
     padding: 10px 20px;
@@ -156,63 +118,17 @@ button {
     text-align: center;
     border: 1px solid #8068c9;
 }
+.item .name { font-size: 21px; font-weight: bold; color: white; }
+.item .money { font-size: 19px; color: #ffdf57; margin-top: 8px; font-weight: bold; }
+.empty { text-align: center; padding: 35px; color: #ddd; font-size: 20px; }
 
-.item .name {
-    font-size: 21px;
-    font-weight: bold;
-    color: white;
-}
-
-.item .money {
-    font-size: 19px;
-    color: #ffdf57;
-    margin-top: 8px;
-    font-weight: bold;
-}
-
-.empty {
-    text-align: center;
-    padding: 35px;
-    color: #ddd;
-    font-size: 20px;
-}
-
-@keyframes scroll {
-    from {
-        transform: translateX(0);
-    }
-    to {
-        transform: translateX(-150%);
-    }
-}
-
-/* DANH SÁCH */
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-th, td {
-    padding: 14px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-}
-
-th {
-    background: #f1edff;
-    color: #5334a3;
-}
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { padding: 14px; border-bottom: 1px solid #eee; text-align: left; }
+th { background: #f1edff; color: #5334a3; }
 
 @media(max-width:700px) {
-    .form {
-        grid-template-columns: 1fr;
-    }
-
-    .stats {
-        flex-direction: column;
-    }
+    .form { grid-template-columns: 1fr; }
+    .stats { flex-direction: column; }
 }
 </style>
 </head>
@@ -229,6 +145,9 @@ th {
     <section class="panel">
         <h2>📝 Nhập thông tin</h2>
 
+        <!-- Thanh trạng thái thao tác -->
+        <div id="statusBar" class="status-bar" role="status" aria-live="polite"></div>
+
         <form id="form" class="form">
 
             <div>
@@ -243,7 +162,7 @@ th {
                        placeholder="Nhập số tiền..." required>
             </div>
 
-            <button class="add" type="submit">
+            <button class="add" type="submit" id="addBtn">
                 + THÊM VÀO DANH SÁCH
             </button>
 
@@ -254,43 +173,32 @@ th {
                 <strong id="count">0</strong>
                 SỐ NGƯỜI THAM GIA
             </div>
-
             <div class="stat">
                 <strong id="total">0đ</strong>
                 TỔNG SỐ TIỀN
             </div>
         </div>
 
-        <button class="delete" id="clear">
+        <button class="delete" id="clear" type="button">
             XÓA TOÀN BỘ
         </button>
     </section>
-
-    <!-- MÀN HÌNH CHẠY CHỮ -->
 
     <section class="display">
         <h2>🌟 DANH SÁCH ỦNG HỘ 🌟</h2>
         <div class="marquee">
             <div class="track" id="track">
-                <div class="group" id="group1">
-                </div>
+                <div class="group" id="group1"></div>
                 <div class="group" id="group2" aria-hidden="true"></div>
             </div>
         </div>
     </section>
 
-    <!-- BẢNG DANH SÁCH -->
-
     <section class="panel list-title">
         <h2>📋 LỊCH SỬ GHI NHẬN</h2>
-
         <table>
             <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Họ tên</th>
-                    <th>Số tiền</th>
-                </tr>
+                <tr><th>STT</th><th>Họ tên</th><th>Số tiền</th></tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
@@ -298,7 +206,7 @@ th {
 
 </div>
 
-<!-- Supabase JS phải nạp trước để script bên dưới dùng được -->
+<!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -310,27 +218,48 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ========== STATE ========== */
 let people = [];
+let isLoading = true;
 
 const form      = document.getElementById("form");
 const track     = document.getElementById("track");
 const group1    = document.getElementById("group1");
 const group2    = document.getElementById("group2");
 const tableBody = document.getElementById("tableBody");
-
-const marquee = document.querySelector(".marquee");
+const marquee   = document.querySelector(".marquee");
+const statusBar = document.getElementById("statusBar");
+const addBtn    = document.getElementById("addBtn");
+const clearBtn  = document.getElementById("clear");
 
 let tickerItems = [];
 let tickerFrame = null;
 let tickerX     = 0;
 let lastTime    = 0;
-const SPEED     = 150; // Tốc độ pixel/giây
+const SPEED     = 150;
 
 function formatMoney(n) {
     return Number(n).toLocaleString("vi-VN") + "đ";
 }
 
-/* ========== SUPABASE: ĐỌC / GHI / XÓA ========== */
+function showStatus(message, type = "info") {
+    statusBar.textContent = message;
+    statusBar.className = "status-bar is-visible status-bar--" + type;
+}
+
+function hideStatus() {
+    statusBar.className = "status-bar";
+    statusBar.textContent = "";
+}
+
+function setBusy(busy) {
+    addBtn.disabled = busy || isLoading;
+    clearBtn.disabled = busy || isLoading;
+}
+
+/* ========== SUPABASE ========== */
 async function loadPeople() {
+    isLoading = true;
+    setBusy(false);
+
     const { data, error } = await supabase
         .from("people")
         .select("id, name, money")
@@ -338,6 +267,13 @@ async function loadPeople() {
 
     if (error) {
         console.error("Lỗi tải dữ liệu Supabase:", error);
+        showStatus(
+            "Không tải được dữ liệu: " + error.message +
+            " (kiểm tra RLS policy và GRANT cho role anon).",
+            "error"
+        );
+        isLoading = false;
+        setBusy(false);
         return;
     }
 
@@ -348,6 +284,9 @@ async function loadPeople() {
     }));
 
     render();
+    hideStatus();
+    isLoading = false;
+    setBusy(false);
 }
 
 async function insertPerson(name, money) {
@@ -358,14 +297,15 @@ async function insertPerson(name, money) {
 }
 
 async function deleteAllPeople() {
+    // Xóa tất cả: điều kiện id > 0 bao phủ mọi bản ghi
     const { error } = await supabase
         .from("people")
         .delete()
-        .not("id", "is", null);
+        .gt("id", 0);
     if (error) throw error;
 }
 
-/* ========== HIỂN THỊ MARQUEE ========== */
+/* ========== MARQUEE ========== */
 function makeItem(person) {
     const box = document.createElement("div");
     box.className = "item";
@@ -384,37 +324,27 @@ function makeItem(person) {
 
 function startTicker() {
     cancelAnimationFrame(tickerFrame);
-
     tickerItems = [...group1.children];
-
-    // Bắt đầu từ ngoài mép phải
     tickerX = marquee.clientWidth;
     lastTime = 0;
-
     track.style.transform = `translateX(${tickerX}px)`;
 
     function move(now) {
         if (!lastTime) lastTime = now;
-
         const delta = Math.min((now - lastTime) / 1000, 0.05);
         lastTime = now;
-
         tickerX -= SPEED * delta;
 
         if (tickerX < -group1.scrollWidth) {
             tickerX = marquee.clientWidth;
         }
-
         track.style.transform = `translateX(${tickerX}px)`;
-
         tickerFrame = requestAnimationFrame(move);
     }
-
     tickerFrame = requestAnimationFrame(move);
 }
 
 function render() {
-    // Người mới nhất đứng đầu danh sách
     group1.replaceChildren();
     group2.replaceChildren();
 
@@ -430,33 +360,22 @@ function render() {
         });
     }
 
-    // Bảng lịch sử: mới nhất trước
     tableBody.replaceChildren();
-
     people.forEach((person, index) => {
         const row = document.createElement("tr");
-
         const stt = document.createElement("td");
         stt.textContent = index + 1;
-
         const name = document.createElement("td");
         name.textContent = person.name;
-
         const money = document.createElement("td");
         money.textContent = formatMoney(person.money);
-
         row.append(stt, name, money);
         tableBody.appendChild(row);
     });
 
     document.getElementById("count").textContent = people.length;
-
-    const sum = people.reduce(
-        (total, person) => total + Number(person.money), 0
-    );
-
-    document.getElementById("total").textContent =
-        formatMoney(sum);
+    const sum = people.reduce((t, p) => t + Number(p.money), 0);
+    document.getElementById("total").textContent = formatMoney(sum);
 
     startTicker();
 }
@@ -473,30 +392,44 @@ form.addEventListener("submit", async function(e) {
 
     if (!name || moneyInput.value === "" ||
         !Number.isFinite(money) || money < 0) {
-        alert("Vui lòng nhập tên và số tiền hợp lệ!");
+        showStatus("Vui lòng nhập tên và số tiền hợp lệ!", "error");
         return;
     }
+
+    setBusy(true);
+    showStatus("Đang lưu…", "info");
 
     try {
         await insertPerson(name, money);
         form.reset();
         nameInput.focus();
-        await loadPeople(); // cập nhật ngay; realtime sẽ đồng bộ các máy khác
+        await loadPeople(); // tải lại danh sách mới nhất
+        showStatus("Đã thêm thành công.", "success");
+        setTimeout(hideStatus, 2500);
     } catch (err) {
         console.error("Lỗi thêm dữ liệu:", err);
-        alert("Không lưu được dữ liệu: " + (err.message || err));
+        showStatus("Không lưu được: " + (err.message || err), "error");
+    } finally {
+        setBusy(false);
     }
 });
 
-document.getElementById("clear").addEventListener("click", async function() {
+clearBtn.addEventListener("click", async function() {
     if (!confirm("Bạn có chắc muốn xóa toàn bộ danh sách?")) return;
+
+    setBusy(true);
+    showStatus("Đang xóa…", "info");
 
     try {
         await deleteAllPeople();
         await loadPeople();
+        showStatus("Đã xóa toàn bộ danh sách.", "success");
+        setTimeout(hideStatus, 2500);
     } catch (err) {
         console.error("Lỗi xóa dữ liệu:", err);
-        alert("Không xóa được dữ liệu: " + (err.message || err));
+        showStatus("Không xóa được: " + (err.message || err), "error");
+    } finally {
+        setBusy(false);
     }
 });
 
@@ -507,7 +440,6 @@ supabase
         "postgres_changes",
         { event: "*", schema: "public", table: "people" },
         () => {
-            // Bất kỳ thay đổi nào từ máy khác → tải lại danh sách
             loadPeople();
         }
     )
@@ -515,7 +447,7 @@ supabase
         if (status === "SUBSCRIBED") {
             console.log("Realtime đã kết nối.");
         } else if (status === "CHANNEL_ERROR") {
-            console.warn("Realtime lỗi — kiểm tra publication supabase_realtime.");
+            console.warn("Realtime lỗi — kiểm tra bảng đã có trong publication supabase_realtime chưa.");
         }
     });
 
