@@ -24,11 +24,7 @@ header {
 header h1 { margin: 0; font-size: 32px; }
 header p { margin-bottom: 0; }
 
-.container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 15px;
-}
+.container { max-width: 1200px; margin: 30px auto; padding: 15px; }
 
 .panel {
     background: white;
@@ -38,7 +34,6 @@ header p { margin-bottom: 0; }
     margin-bottom: 25px;
 }
 
-/* Thanh trạng thái kết nối / thao tác */
 .status-bar {
     min-height: 22px;
     font-size: 14px;
@@ -48,9 +43,9 @@ header p { margin-bottom: 0; }
     display: none;
 }
 .status-bar.is-visible { display: block; }
-.status-bar--error { background: #fde8ec; color: #a11d33; }
+.status-bar--error   { background: #fde8ec; color: #a11d33; }
 .status-bar--success { background: #e6f7ee; color: #136c3a; }
-.status-bar--info { background: #eef2ff; color: #3730a3; }
+.status-bar--info    { background: #eef2ff; color: #3730a3; }
 
 .form {
     display: grid;
@@ -79,7 +74,7 @@ button {
 }
 button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.add { background: #6d45dc; color: white; }
+.add    { background: #6d45dc; color: white; }
 .delete { background: #e84c69; color: white; margin-top: 15px; }
 
 .stats { display: flex; gap: 20px; margin-top: 25px; }
@@ -101,7 +96,6 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     background: #211b42;
     color: white;
     padding: 10px;
-    border-radius: 1px;
     overflow: hidden;
 }
 .display h2 { text-align: center; color: #ffdf57; margin: 0 0 10px 10px; }
@@ -118,7 +112,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     text-align: center;
     border: 1px solid #8068c9;
 }
-.item .name { font-size: 21px; font-weight: bold; color: white; }
+.item .name  { font-size: 21px; font-weight: bold; color: white; }
 .item .money { font-size: 19px; color: #ffdf57; margin-top: 8px; font-weight: bold; }
 .empty { text-align: center; padding: 35px; color: #ddd; font-size: 20px; }
 
@@ -145,43 +139,27 @@ th { background: #f1edff; color: #5334a3; }
     <section class="panel">
         <h2>📝 Nhập thông tin</h2>
 
-        <!-- Thanh trạng thái thao tác -->
         <div id="statusBar" class="status-bar" role="status" aria-live="polite"></div>
 
         <form id="form" class="form">
-
             <div>
                 <label>Họ và tên</label>
                 <input id="name" placeholder="Nhập họ tên..." required>
             </div>
-
             <div>
                 <label>Số tiền (VNĐ)</label>
-                <input id="money" type="number"
-                       min="0" step="1"
+                <input id="money" type="number" min="0" step="1"
                        placeholder="Nhập số tiền..." required>
             </div>
-
-            <button class="add" type="submit" id="addBtn">
-                + THÊM VÀO DANH SÁCH
-            </button>
-
+            <button class="add" type="submit" id="addBtn">+ THÊM VÀO DANH SÁCH</button>
         </form>
 
         <div class="stats">
-            <div class="stat">
-                <strong id="count">0</strong>
-                SỐ NGƯỜI THAM GIA
-            </div>
-            <div class="stat">
-                <strong id="total">0đ</strong>
-                TỔNG SỐ TIỀN
-            </div>
+            <div class="stat"><strong id="count">0</strong>SỐ NGƯỜI THAM GIA</div>
+            <div class="stat"><strong id="total">0đ</strong>TỔNG SỐ TIỀN</div>
         </div>
 
-        <button class="delete" id="clear" type="button">
-            XÓA TOÀN BỘ
-        </button>
+        <button class="delete" id="clear" type="button">XÓA TOÀN BỘ</button>
     </section>
 
     <section class="display">
@@ -206,20 +184,12 @@ th { background: #f1edff; color: #5334a3; }
 
 </div>
 
-<!-- Supabase JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-/* ========== CẤU HÌNH SUPABASE ========== */
+/* ========== CẤU HÌNH ========== */
 const SUPABASE_URL      = "https://ktrapgpglbsqukipzook.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_nRjbF6SkyRBoh_3wzevbeA_G9XOdDGc";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/* ========== STATE ========== */
-let people = [];
-let isLoading = true;
-
+/* ========== DOM ========== */
 const form      = document.getElementById("form");
 const track     = document.getElementById("track");
 const group1    = document.getElementById("group1");
@@ -229,19 +199,21 @@ const marquee   = document.querySelector(".marquee");
 const statusBar = document.getElementById("statusBar");
 const addBtn    = document.getElementById("addBtn");
 const clearBtn  = document.getElementById("clear");
+const countEl   = document.getElementById("count");
+const totalEl   = document.getElementById("total");
 
-let tickerItems = [];
-let tickerFrame = null;
-let tickerX     = 0;
-let lastTime    = 0;
-const SPEED     = 150;
+/* ========== STATE ========== */
+let people = [];
+let isLoading = false;
+let isMutating = false;
 
+/* ========== TIỆN ÍCH ========== */
 function formatMoney(n) {
     return Number(n).toLocaleString("vi-VN") + "đ";
 }
 
-function showStatus(message, type = "info") {
-    statusBar.textContent = message;
+function showStatus(msg, type = "info") {
+    statusBar.textContent = msg;
     statusBar.className = "status-bar is-visible status-bar--" + type;
 }
 
@@ -250,62 +222,70 @@ function hideStatus() {
     statusBar.textContent = "";
 }
 
-function setBusy(busy) {
-    addBtn.disabled = busy || isLoading;
-    clearBtn.disabled = busy || isLoading;
+function setBusy() {
+    const busy = isMutating || isLoading;
+    addBtn.disabled = busy;
+    clearBtn.disabled = busy;
 }
 
-/* ========== SUPABASE ========== */
-async function loadPeople() {
-    isLoading = true;
-    setBusy(false);
+/* ========== GỌI SUPABASE REST API TRỰC TIẾP (KHÔNG CẦN CDN) ========== */
+async function supabaseFetch(path, options = {}) {
+    const url = SUPABASE_URL + "/rest/v1" + path;
+    const res = await fetch(url, {
+        ...options,
+        headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        }
+    });
 
-    const { data, error } = await supabase
-        .from("people")
-        .select("id, name, money")
-        .order("id", { ascending: false });
-
-    if (error) {
-        console.error("Lỗi tải dữ liệu Supabase:", error);
-        showStatus(
-            "Không tải được dữ liệu: " + error.message +
-            " (kiểm tra RLS policy và GRANT cho role anon).",
-            "error"
-        );
-        isLoading = false;
-        setBusy(false);
-        return;
+    let body = null;
+    const text = await res.text();
+    if (text) {
+        try { body = JSON.parse(text); } catch (_) { body = text; }
     }
 
-    people = (data || []).map(p => ({
-        id: p.id,
-        name: String(p.name),
-        money: Number(p.money)
-    }));
+    if (!res.ok) {
+        const detail = (body && (body.message || body.hint || body.details)) || res.statusText;
+        const err = new Error(`HTTP ${res.status} — ${detail}`);
+        err.status = res.status;
+        err.body = body;
+        throw err;
+    }
 
-    render();
-    hideStatus();
-    isLoading = false;
-    setBusy(false);
+    return body;
+}
+
+async function fetchPeople() {
+    return await supabaseFetch(
+        "/people?select=id,name,money&order=id.desc"
+    );
 }
 
 async function insertPerson(name, money) {
-    const { error } = await supabase
-        .from("people")
-        .insert([{ name, money }]);
-    if (error) throw error;
+    return await supabaseFetch("/people", {
+        method: "POST",
+        headers: { "Prefer": "return=representation" },
+        body: JSON.stringify([{ name, money }])
+    });
 }
 
 async function deleteAllPeople() {
-    // Xóa tất cả: điều kiện id > 0 bao phủ mọi bản ghi
-    const { error } = await supabase
-        .from("people")
-        .delete()
-        .gt("id", 0);
-    if (error) throw error;
+    // PostgREST: điều kiện "id > 0" phủ toàn bộ bản ghi
+    return await supabaseFetch("/people?id=gt.0", {
+        method: "DELETE",
+        headers: { "Prefer": "" }
+    });
 }
 
 /* ========== MARQUEE ========== */
+let tickerFrame = null;
+let tickerX = 0;
+let lastTime = 0;
+const SPEED = 150;
+
 function makeItem(person) {
     const box = document.createElement("div");
     box.className = "item";
@@ -324,7 +304,6 @@ function makeItem(person) {
 
 function startTicker() {
     cancelAnimationFrame(tickerFrame);
-    tickerItems = [...group1.children];
     tickerX = marquee.clientWidth;
     lastTime = 0;
     track.style.transform = `translateX(${tickerX}px)`;
@@ -333,8 +312,8 @@ function startTicker() {
         if (!lastTime) lastTime = now;
         const delta = Math.min((now - lastTime) / 1000, 0.05);
         lastTime = now;
-        tickerX -= SPEED * delta;
 
+        tickerX -= SPEED * delta;
         if (tickerX < -group1.scrollWidth) {
             tickerX = marquee.clientWidth;
         }
@@ -344,6 +323,7 @@ function startTicker() {
     tickerFrame = requestAnimationFrame(move);
 }
 
+/* ========== RENDER ========== */
 function render() {
     group1.replaceChildren();
     group2.replaceChildren();
@@ -355,34 +335,56 @@ function render() {
         group1.appendChild(empty);
         group2.appendChild(empty.cloneNode(true));
     } else {
-        people.forEach(person => {
-            group1.appendChild(makeItem(person));
-        });
+        people.forEach(p => group1.appendChild(makeItem(p)));
     }
 
     tableBody.replaceChildren();
     people.forEach((person, index) => {
         const row = document.createElement("tr");
-        const stt = document.createElement("td");
-        stt.textContent = index + 1;
-        const name = document.createElement("td");
-        name.textContent = person.name;
-        const money = document.createElement("td");
-        money.textContent = formatMoney(person.money);
-        row.append(stt, name, money);
+        const stt = document.createElement("td");   stt.textContent = index + 1;
+        const n   = document.createElement("td");   n.textContent   = person.name;
+        const m   = document.createElement("td");   m.textContent   = formatMoney(person.money);
+        row.append(stt, n, m);
         tableBody.appendChild(row);
     });
 
-    document.getElementById("count").textContent = people.length;
+    countEl.textContent = people.length;
     const sum = people.reduce((t, p) => t + Number(p.money), 0);
-    document.getElementById("total").textContent = formatMoney(sum);
+    totalEl.textContent = formatMoney(sum);
 
     startTicker();
 }
 
+/* ========== LOAD ========== */
+async function loadPeople() {
+    isLoading = true;
+    setBusy();
+
+    try {
+        const data = await fetchPeople();
+        people = (data || []).map(p => ({
+            id: p.id,
+            name: String(p.name),
+            money: Number(p.money)
+        }));
+        render();
+        // Nếu trước đó có lỗi, giờ đã thành công → xóa lỗi
+        if (statusBar.classList.contains("status-bar--error")) {
+            hideStatus();
+        }
+    } catch (err) {
+        console.error("Lỗi tải dữ liệu:", err);
+        showStatus("Không tải được dữ liệu: " + err.message, "error");
+    } finally {
+        isLoading = false;
+        setBusy();
+    }
+}
+
 /* ========== SỰ KIỆN ========== */
-form.addEventListener("submit", async function(e) {
+form.addEventListener("submit", async function (e) {
     e.preventDefault();
+    if (isMutating || isLoading) return;
 
     const nameInput  = document.getElementById("name");
     const moneyInput = document.getElementById("money");
@@ -396,28 +398,32 @@ form.addEventListener("submit", async function(e) {
         return;
     }
 
-    setBusy(true);
+    isMutating = true;
+    setBusy();
     showStatus("Đang lưu…", "info");
 
     try {
         await insertPerson(name, money);
         form.reset();
         nameInput.focus();
-        await loadPeople(); // tải lại danh sách mới nhất
+        await loadPeople();
         showStatus("Đã thêm thành công.", "success");
         setTimeout(hideStatus, 2500);
     } catch (err) {
         console.error("Lỗi thêm dữ liệu:", err);
-        showStatus("Không lưu được: " + (err.message || err), "error");
+        showStatus("Không lưu được: " + err.message, "error");
     } finally {
-        setBusy(false);
+        isMutating = false;
+        setBusy();
     }
 });
 
-clearBtn.addEventListener("click", async function() {
+clearBtn.addEventListener("click", async function () {
+    if (isMutating || isLoading) return;
     if (!confirm("Bạn có chắc muốn xóa toàn bộ danh sách?")) return;
 
-    setBusy(true);
+    isMutating = true;
+    setBusy();
     showStatus("Đang xóa…", "info");
 
     try {
@@ -427,32 +433,60 @@ clearBtn.addEventListener("click", async function() {
         setTimeout(hideStatus, 2500);
     } catch (err) {
         console.error("Lỗi xóa dữ liệu:", err);
-        showStatus("Không xóa được: " + (err.message || err), "error");
+        showStatus("Không xóa được: " + err.message, "error");
     } finally {
-        setBusy(false);
+        isMutating = false;
+        setBusy();
     }
 });
 
-/* ========== REALTIME ========== */
-supabase
-    .channel("people-changes")
-    .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "people" },
-        () => {
-            loadPeople();
-        }
-    )
-    .subscribe(status => {
-        if (status === "SUBSCRIBED") {
-            console.log("Realtime đã kết nối.");
-        } else if (status === "CHANNEL_ERROR") {
-            console.warn("Realtime lỗi — kiểm tra bảng đã có trong publication supabase_realtime chưa.");
-        }
+/* ========== REALTIME (tùy chọn) + POLLING (luôn chạy) ========== */
+function loadScriptOnce(src) {
+    return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = src;
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = () => reject(new Error("Không tải được " + src));
+        document.head.appendChild(s);
     });
+}
+
+async function setupRealtime() {
+    try {
+        // Thử tải thư viện để có realtime tức thời
+        await loadScriptOnce(
+            "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"
+        );
+        if (!window.supabase) throw new Error("window.supabase undefined");
+
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        client
+            .channel("people-changes")
+            .on(
+                "postgres_changes",
+                { event: "*", schema: "public", table: "people" },
+                () => loadPeople()
+            )
+            .subscribe(status => {
+                if (status === "SUBSCRIBED") {
+                    console.log("[Realtime] Đã kết nối.");
+                } else if (status === "CHANNEL_ERROR") {
+                    console.warn("[Realtime] Lỗi channel — kiểm tra publication supabase_realtime.");
+                }
+            });
+    } catch (err) {
+        console.warn("[Realtime] Không dùng được thư viện, chuyển sang polling:", err.message);
+    }
+
+    // Polling là lưới an toàn: luôn cập nhật mỗi 5 giây
+    setInterval(loadPeople, 5000);
+}
 
 /* ========== KHỞI TẠO ========== */
+showStatus("Đang kết nối Supabase…", "info");
 loadPeople();
+setupRealtime();
 </script>
 
 </body>
